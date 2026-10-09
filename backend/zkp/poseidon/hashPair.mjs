@@ -10,7 +10,7 @@ async function main() {
   const hash = F.toString(poseidon([a, b]));
   console.log(hash);
 
-  process.exit(0); // 🔥 FORCE EXIT
+  process.exit(0); 
 }
 
 main().catch(err => {

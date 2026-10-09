@@ -12,21 +12,15 @@ from .serializer import (
     CandidateSerializer
 )
 
-# -----------------------------------
-# Create Election
-# -----------------------------------
 class CreateElectionView(APIView):
     def post(self, request):
         serializer = ElectionCreateSerializer(data=request.data)
         if serializer.is_valid():
-            election = serializer.save()  # is_active defaults to False
+            election = serializer.save() 
             return Response({"id": election.id}, status=201)
         return Response(serializer.errors, status=400)
 
 
-# -----------------------------------
-# Add Candidate (ONLY BEFORE voting starts)
-# -----------------------------------
 class AddCandidateView(APIView):
     def post(self, request, election_id):
         try:
@@ -48,9 +42,6 @@ class AddCandidateView(APIView):
         return Response(serializer.errors, status=400)
 
 
-# -----------------------------------
-# Start Voting (MANUAL)
-# -----------------------------------
 class StartVotingView(APIView):
     def post(self, request, election_id):
         try:
@@ -67,9 +58,6 @@ class StartVotingView(APIView):
         return Response({"message": "Voting started"}, status=200)
 
 
-# -----------------------------------
-# End Election
-# -----------------------------------
 class EndElectionView(APIView):
     def post(self, request, election_id):
         try:
@@ -87,9 +75,6 @@ class EndElectionView(APIView):
         return Response({"message": "Election ended"}, status=200)
 
 
-# -----------------------------------
-# Get Active Election (GLOBAL)
-# -----------------------------------
 class ActiveElectionView(APIView):
     def get(self, request):
         election = Election.objects.filter(is_active=True).first()
@@ -100,9 +85,6 @@ class ActiveElectionView(APIView):
         return Response(ElectionReadSerializer(election).data, status=200)
 
 
-# -----------------------------------
-# Get Candidates by Panchayat
-# -----------------------------------
 class GetCandidatesByPanchayatView(APIView):
     def get(self, request, panchayat_id):
         election = Election.objects.filter(
@@ -119,9 +101,6 @@ class GetCandidatesByPanchayatView(APIView):
         return Response(ElectionReadSerializer(election).data, status=200)
 
 
-# -----------------------------------
-# Get Candidates by Election
-# -----------------------------------
 class ElectionCandidatesView(APIView):
     def get(self, request, election_id):
         try:
@@ -137,6 +116,7 @@ class ElectionCandidatesView(APIView):
         )
 
         return Response({"candidates": list(candidates)}, status=200)
+    
 class ElectionResultView(APIView):
     def get(self, request, election_id):
         try:
@@ -147,7 +127,6 @@ class ElectionResultView(APIView):
                 status=404
             )
 
-        # 🔒 Allow results ONLY after election ends
         if timezone.now() < election.end_time:
             return Response(
                 {"error": "Results available only after election ends"},
@@ -157,7 +136,7 @@ class ElectionResultView(APIView):
         results = (
             Candidate.objects
             .filter(election=election)
-            .annotate(vote_count=Count("votes"))  # ✅ FIXED
+            .annotate(vote_count=Count("votes")) 
             .values("id", "name", "party", "vote_count")
             .order_by("-vote_count")
         )

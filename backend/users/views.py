@@ -1,34 +1,59 @@
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-from .serializer import UserRegistrationSerializer
-from rest_framework.permissions import IsAuthenticated
+from .serializer import (
+    UserRegistrationSerializer,
+    UserLoginSerializer
+)
 from .models import UserProfile
 from django.contrib.auth import authenticate
+from common.permissions import IsCommissioner
 
 class RegisterUserView(APIView):
     def post(self,request):
         serializer=UserRegistrationSerializer(data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response({"message":"user registered, approvel pending"},status=status.HTTP_201_CREATED)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"message":"user registered, approvel pending"},
+                status=status.HTTP_201_CREATED
+            )
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
     
 class LoginUserView(APIView):
     def post(self,request):
         username=request.data.get('username')
         password=request.data.get('password')
+
         user=authenticate(username=username,password=password)
+
         if not user:
-            return Response({"message":"invalid credentials"},status=status.HTTP_401_UNAUTHORIZED)
-        profile=UserProfile.objects.get(user=user)
-        if not profile.approved:
-            return Response({"error":"user not approved"},status=status.HTTP_403_FORBIDDEN)
-        return Response({"message":"login successful","role":profile.role},status=status.HTTP_200_OK)
-    
-    # new change
+            return Response(
+                {"message":"invalid credentials"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        profile=UserProfile.objects.filter(user=user).first()
+
+        if (not profile) or (not profile.approved):
+            return Response(
+                {"error":"user not approved"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        return Response(
+                UserLoginSerializer(user).data,
+                status=status.HTTP_200_OK
+        )
+
 
 class PendingAgentsView(APIView):
+    permission_classes = [IsCommissioner]
+
     def get(self, request):
         agents = UserProfile.objects.filter(
             role="Agent",
@@ -44,8 +69,10 @@ class PendingAgentsView(APIView):
         ]
 
         return Response(data, status=status.HTTP_200_OK)
+
     
 class ApproveAgentView(APIView):
+    permission_classes = [IsCommissioner]
     def post(self, request, agent_id):
         try:
             profile = UserProfile.objects.get(
