@@ -1,0 +1,66 @@
+# =========================
+# Python / Django
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.log
+
+# Virtual environments
+venv/
+.env/
+.env.*
+
+# Django secrets & runtime
+db.sqlite3
+*.sqlite3
+media/
+staticfiles/
+local_settings.py
+
+# =========================
+# Node / SnarkJS / Circom
+# =========================
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Circom / SnarkJS build artifacts
+*.wtns
+*.sym
+*.r1cs
+*.wasm
+*.zkey
+
+# Proofs (never commit real proofs)
+proof.json
+public.json
+
+# =========================
+# OS / Editor
+# =========================
+.DS_Store
+Thumbs.db
+
+.vscode/
+.idea/
+*.swp
+# Environment
+.env
+
+# Django
+db.sqlite3
+
+# Python
+__pycache__/
+*.pyc
+
+# ZKP build artifacts
+zkp/build/
+zkp/*.ptau
+zkp/input.json
+zkp/package.json
+zkp/package-lock.json
+
+
