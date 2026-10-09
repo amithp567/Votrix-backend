@@ -12,7 +12,7 @@ class Vote(models.Model):
     candidate = models.ForeignKey(
         Candidate,
         on_delete=models.CASCADE,
-        related_name="votes"   # 🔥 REQUIRED for results
+        related_name="votes"
     )
 
     nullifier = models.CharField(max_length=255, unique=True)

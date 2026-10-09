@@ -9,7 +9,6 @@ from .views import (
 urlpatterns = [
     path("register/", RegisterUserView.as_view()),
     path("login/", LoginUserView.as_view()),
-    # new changes
     path("agents/pending/", PendingAgentsView.as_view()),
     path("agents/approve/<int:agent_id>/", ApproveAgentView.as_view()),
 ]

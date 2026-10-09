@@ -3,9 +3,6 @@ from django.utils import timezone
 from .models import Election, Candidate
 
 
-# -----------------------------
-# Election Admin
-# -----------------------------
 @admin.register(Election)
 class ElectionAdmin(admin.ModelAdmin):
     list_display = (
@@ -39,9 +36,6 @@ class ElectionAdmin(admin.ModelAdmin):
     status.short_description = "Election Status"
 
 
-# -----------------------------
-# Candidate Admin
-# -----------------------------
 @admin.register(Candidate)
 class CandidateAdmin(admin.ModelAdmin):
     list_display = (

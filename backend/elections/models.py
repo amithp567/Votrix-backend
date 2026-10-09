@@ -24,7 +24,7 @@ class Election(models.Model):
 
 class Candidate(models.Model):
     election = models.ForeignKey(
-        "Election",   # 🔥 STRING reference (important)
+        "Election",  
         related_name="candidates",
         on_delete=models.CASCADE
     )

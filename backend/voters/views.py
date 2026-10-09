@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 import subprocess
-from .biometric import enroll_fingerprint, match_fingerprint
+# from .biometric import enroll_fingerprint, match_fingerprint
 
 from django.conf import settings
 
@@ -15,9 +15,6 @@ import os
 LEVELS = 20
 ZERO = "0"
 
-# ======================================================
-# Poseidon hash helper
-# ======================================================
 def poseidon_hash(value: str) -> str:
     result = subprocess.run(
         ["node", "hashLeaf.mjs", value],
@@ -32,18 +29,16 @@ def poseidon_hash(value: str) -> str:
     return result.stdout.strip()
 
 
-# ======================================================
-# REGISTER VOTER
-# ======================================================
 class RegisterVoterView(APIView):
     def post(self, request):
 
         serializer = VoterRegistrationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        print("🔐 Starting fingerprint enrollment...")
+        print("Starting fingerprint enrollment...")
 
-        finger_id = enroll_fingerprint()
+        # finger_id = enroll_fingerprint()
+        finger_id = 'hi'
 
         if not finger_id:
             return Response(
@@ -51,7 +46,6 @@ class RegisterVoterView(APIView):
                 status=400
             )
 
-        # 🔥 ZKP leaf (UNCHANGED)
         fingerprint_string = f"finger_{finger_id}"
         leaf = poseidon_leaf(fingerprint_string)
 
@@ -60,14 +54,11 @@ class RegisterVoterView(APIView):
             merkle_leaf=leaf
         )
 
-        print("✅ Registered:", voter.name, "ID:", finger_id)
+        print("Registered:", voter.name, "ID:", finger_id)
 
         return Response({"message": "Voter registered"}, status=201)
 
 
-# ======================================================
-# MERKLE ROOT
-# ======================================================
 class MerkleRootView(APIView):
     def get(self, request):
         leaves = list(
@@ -82,12 +73,9 @@ class MerkleRootView(APIView):
         return Response({"root": tree.root()}, status=200)
 
 
-# ======================================================
-# MERKLE PROOF
-# ======================================================
 class MerkleProofView(APIView):
     def post(self, request):
-        print("🔥 MERKLE PROOF VIEW HIT")
+        print("MERKLE PROOF VIEW HIT")
 
         finger_id = request.data.get("fingerprint_id")
 
@@ -99,7 +87,6 @@ class MerkleProofView(APIView):
         except ValueError:
             return Response({"error": "Invalid fingerprint_id"}, status=400)
 
-        # 🔥 SAME LOGIC (ZKP SAFE)
         fingerprint_string = f"finger_{finger_id}"
         leaf = poseidon_leaf(fingerprint_string)
 
@@ -117,7 +104,6 @@ class MerkleProofView(APIView):
 
         path, indices = tree.get_proof(index)
 
-        # pad
         path += [ZERO] * (LEVELS - len(path))
         indices += [0] * (LEVELS - len(indices))
 
@@ -128,10 +114,6 @@ class MerkleProofView(APIView):
             "pathIndices": indices,
         }, status=200)
 
-
-# ======================================================
-# VERIFY VOTER (FIXED)
-# ======================================================
 class VerifyVoterView(APIView):
     def post(self, request):
 
@@ -145,8 +127,8 @@ class VerifyVoterView(APIView):
 
         print("🔐 Starting fingerprint verification...")
 
-        finger_id = match_fingerprint()
-
+        # finger_id = match_fingerprint()
+        finger_id = 'hi'
         print("FINGER ID:", finger_id)
 
         if not finger_id:
@@ -155,7 +137,6 @@ class VerifyVoterView(APIView):
                 status=401
             )
 
-        # 🔥 FIX: use fingerprint_id instead of merkle
         voter = Voter.objects.filter(
             fingerprint_id=finger_id,
             panchayat_id=panchayat_id
@@ -167,7 +148,7 @@ class VerifyVoterView(APIView):
                 status=401
             )
 
-        print("✅ Voter verified:", voter.name)
+        print("Voter verified:", voter.name)
 
         return Response({
             "message": "Voter verified",

@@ -2,7 +2,7 @@ import subprocess
 import os
 from django.conf import settings
 
-# cache ZERO so node is called only once
+
 _POSEIDON_ZERO = None
 
 def poseidon_zero():
@@ -19,7 +19,7 @@ def _run_node(script: str, *args: str) -> str:
         cwd=os.path.join(settings.BASE_DIR, "zkp", "poseidon"),
         capture_output=True,
         text=True,
-        timeout=5  # 🔥 prevents infinite hang
+        timeout=5  
     )
 
     if result.returncode != 0:
