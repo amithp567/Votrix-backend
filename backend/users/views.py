@@ -15,7 +15,7 @@ class RegisterUserView(APIView):
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(
-                {"message":"user registered, approvel pending"},
+                {"message":"User registered, approvel pending"},
                 status=status.HTTP_201_CREATED
             )
         return Response(
@@ -33,7 +33,7 @@ class LoginUserView(APIView):
 
         if not user:
             return Response(
-                {"message":"invalid credentials"},
+                {"message":"Invalid credentials"},
                 status=status.HTTP_401_UNAUTHORIZED
             )
         
@@ -41,7 +41,7 @@ class LoginUserView(APIView):
 
         if (not profile) or (not profile.approved):
             return Response(
-                {"error":"user not approved"},
+                {"message":"User not approved"},
                 status=status.HTTP_403_FORBIDDEN
             )
         
@@ -63,7 +63,8 @@ class PendingAgentsView(APIView):
         data = [
             {
                 "id": agent.id,
-                "username": agent.user.username
+                "username": agent.user.username,
+                "role" : agent.role
             }
             for agent in agents
         ]
@@ -89,6 +90,6 @@ class ApproveAgentView(APIView):
 
         except UserProfile.DoesNotExist:
             return Response(
-                {"error": "Agent not found"},
+                {"message": "Agent not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
