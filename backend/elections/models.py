@@ -21,6 +21,9 @@ class Election(models.Model):
                 self.is_active = False
                 self.save(update_fields=["is_active"])
 
+    def __str__(self):
+        return self.name
+
 
 class Candidate(models.Model):
     election = models.ForeignKey(

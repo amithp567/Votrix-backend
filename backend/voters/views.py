@@ -125,9 +125,8 @@ class VerifyVoterView(APIView):
                 status=400
             )
 
-        print("🔐 Starting fingerprint verification...")
+        print("Starting fingerprint verification...")
 
-        # finger_id = match_fingerprint()
         finger_id = 'hi'
         print("FINGER ID:", finger_id)
 

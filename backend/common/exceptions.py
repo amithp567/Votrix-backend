@@ -1,14 +1,17 @@
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, APIException
 from rest_framework.views import exception_handler
 
-from rest_framework.exceptions import ValidationError
-from rest_framework.views import exception_handler
 
+class ValidationException(APIException):
+    pass
 
 def custom_exception_handler(exc, context):
     response = exception_handler(exc, context)
 
-    if response is not None and isinstance(exc, ValidationError):
+    if response is None:
+        return response
+
+    if isinstance(exc, ValidationError):
         errors = response.data
 
         def get_first_error(data, field_name=None):
@@ -27,8 +30,8 @@ def custom_exception_handler(exc, context):
             else:
                 message = str(data)
 
-                if message == "This field is required." and field_name:
-                    return f"{field_name} {message}"
+                if field_name:
+                    return f"{field_name.capitalize()} : {message}"
 
                 return message
 
